@@ -16,10 +16,8 @@ pipeline {
     REGISTRY_URL = "https://${REGISTRY}"
     REGISTRY_CREDS_ID = 'gitea-user'
     IMAGE_OWNER = 'cr'
-    IMAGE_NAME = 'ansible'
-    IMAGE_TAG = 'latest'
-    IMAGE_FULLNAME = "${REGISTRY}/${IMAGE_OWNER}/${IMAGE_NAME}:${IMAGE_TAG}"
-    DOCKERFILE = 'Dockerfile'
+    IMAGE_BASENAME = 'ansible'
+    IMAGE_FULLNAME = "${REGISTRY}/${IMAGE_OWNER}/${IMAGE_BASENAME}"
     LABEL_AUTHORS = 'Ilya Pavlov <piv@devmem.ru>'
     LABEL_TITLE = 'Ansible'
     LABEL_DESCRIPTION = 'Ansible for CI/CD pipelines'
@@ -37,68 +35,77 @@ pipeline {
       }
     }
 
-    stage('Build image') {
-      when {
-        not {
-          anyOf {
-            triggeredBy 'TimerTrigger'
-            triggeredBy cause: 'UserIdCause'
-          }
-        }
+    stage('Build base image') {
+      environment {
+        IMAGE_TAG = 'base'
+        DOCKERFILE = ".docker/${IMAGE_TAG}.Dockerfile"
       }
-      steps {
-        script {
-          docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
-            def myImage = docker.build(
-              "${IMAGE_OWNER}/${IMAGE_NAME}:${IMAGE_TAG}",
-              "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
-              --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
-              --label \"org.opencontainers.image.url=${LABEL_URL}\" \
-              --label \"org.opencontainers.image.source=${GIT_URL}\" \
-              --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
-              --label \"org.opencontainers.image.revision=${REVISION}\" \
-              --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
-              --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
-              --progress=plain \
-              --cache-from ${IMAGE_FULLNAME} \
-              -f ${DOCKERFILE} ."
-            )
-            myImage.push()
-            // Untag and remove image by sha256 id
-            sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
-          }
-        }
-      }
-    }
 
-    stage('Build image (no cache)') {
-      when {
-        anyOf {
-          triggeredBy 'TimerTrigger'
-          triggeredBy cause: 'UserIdCause'
+      stages {
+        stage('Build base image (cache)') {
+          when {
+            not {
+              anyOf {
+                triggeredBy 'TimerTrigger'
+                triggeredBy cause: 'UserIdCause'
+              }
+            }
+          }
+          steps {
+            script {
+              docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
+                def myImage = docker.build(
+                  "${IMAGE_FULLNAME}:${IMAGE_TAG}",
+                  "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
+                  --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
+                  --label \"org.opencontainers.image.url=${LABEL_URL}\" \
+                  --label \"org.opencontainers.image.source=${GIT_URL}\" \
+                  --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
+                  --label \"org.opencontainers.image.revision=${REVISION}\" \
+                  --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
+                  --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
+                  --progress=plain \
+                  --cache-from ${IMAGE_FULLNAME}:${IMAGE_TAG} \
+                  -f ${DOCKERFILE} ."
+                )
+                myImage.push()
+                // Untag and remove image by sha256 id
+                sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
+              }
+            }
+          }
         }
-      }
-      steps {
-        script {
-          docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
-            def myImage = docker.build(
-              "${IMAGE_OWNER}/${IMAGE_NAME}:${IMAGE_TAG}",
-              "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
-              --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
-              --label \"org.opencontainers.image.url=${LABEL_URL}\" \
-              --label \"org.opencontainers.image.source=${GIT_URL}\" \
-              --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
-              --label \"org.opencontainers.image.revision=${REVISION}\" \
-              --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
-              --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
-              --progress=plain \
-              --pull \
-              --no-cache \
-              -f ${DOCKERFILE} ."
-            )
-            myImage.push()
-            // Untag and remove image by sha256 id
-            sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
+
+        stage('Build base image (no cache)') {
+          when {
+            anyOf {
+              triggeredBy 'TimerTrigger'
+              triggeredBy cause: 'UserIdCause'
+            }
+          }
+          steps {
+            script {
+              docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
+                def myImage = docker.build(
+                  "${IMAGE_FULLNAME}:${IMAGE_TAG}",
+                  "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
+                  --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
+                  --label \"org.opencontainers.image.url=${LABEL_URL}\" \
+                  --label \"org.opencontainers.image.source=${GIT_URL}\" \
+                  --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
+                  --label \"org.opencontainers.image.revision=${REVISION}\" \
+                  --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
+                  --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
+                  --progress=plain \
+                  --pull \
+                  --no-cache \
+                  -f ${DOCKERFILE} ."
+                )
+                myImage.push()
+                // Untag and remove image by sha256 id
+                sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
+              }
+            }
           }
         }
       }
