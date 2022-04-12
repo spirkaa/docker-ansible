@@ -69,7 +69,6 @@ pipeline {
                   -f ${DOCKERFILE} ."
                 )
                 myImage.push()
-                // Untag and remove image by sha256 id
                 sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
               }
             }
@@ -102,7 +101,154 @@ pipeline {
                   -f ${DOCKERFILE} ."
                 )
                 myImage.push()
-                // Untag and remove image by sha256 id
+                sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
+              }
+            }
+          }
+        }
+      }
+    }
+
+    stage('Build k8s image') {
+      environment {
+        IMAGE_TAG = 'k8s'
+        DOCKERFILE = ".docker/${IMAGE_TAG}.Dockerfile"
+      }
+
+      stages {
+        stage('Build k8s image (cache)') {
+          when {
+            not {
+              anyOf {
+                triggeredBy 'TimerTrigger'
+                triggeredBy cause: 'UserIdCause'
+              }
+            }
+          }
+          steps {
+            script {
+              docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
+                def myImage = docker.build(
+                  "${IMAGE_FULLNAME}:${IMAGE_TAG}",
+                  "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
+                  --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
+                  --label \"org.opencontainers.image.url=${LABEL_URL}\" \
+                  --label \"org.opencontainers.image.source=${GIT_URL}\" \
+                  --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
+                  --label \"org.opencontainers.image.revision=${REVISION}\" \
+                  --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
+                  --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
+                  --progress=plain \
+                  --cache-from ${IMAGE_FULLNAME}:${IMAGE_TAG} \
+                  -f ${DOCKERFILE} ."
+                )
+                myImage.push()
+                sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
+              }
+            }
+          }
+        }
+
+        stage('Build k8s image (no cache)') {
+          when {
+            anyOf {
+              triggeredBy 'TimerTrigger'
+              triggeredBy cause: 'UserIdCause'
+            }
+          }
+          steps {
+            script {
+              docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
+                def myImage = docker.build(
+                  "${IMAGE_FULLNAME}:${IMAGE_TAG}",
+                  "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
+                  --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
+                  --label \"org.opencontainers.image.url=${LABEL_URL}\" \
+                  --label \"org.opencontainers.image.source=${GIT_URL}\" \
+                  --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
+                  --label \"org.opencontainers.image.revision=${REVISION}\" \
+                  --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
+                  --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
+                  --progress=plain \
+                  --pull \
+                  --no-cache \
+                  -f ${DOCKERFILE} ."
+                )
+                myImage.push()
+                sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
+              }
+            }
+          }
+        }
+      }
+    }
+
+    stage('Build infra image') {
+      environment {
+        IMAGE_TAG = 'infra'
+        DOCKERFILE = ".docker/${IMAGE_TAG}.Dockerfile"
+      }
+
+      stages {
+        stage('Build infra image (cache)') {
+          when {
+            not {
+              anyOf {
+                triggeredBy 'TimerTrigger'
+                triggeredBy cause: 'UserIdCause'
+              }
+            }
+          }
+          steps {
+            script {
+              docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
+                def myImage = docker.build(
+                  "${IMAGE_FULLNAME}:${IMAGE_TAG}",
+                  "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
+                  --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
+                  --label \"org.opencontainers.image.url=${LABEL_URL}\" \
+                  --label \"org.opencontainers.image.source=${GIT_URL}\" \
+                  --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
+                  --label \"org.opencontainers.image.revision=${REVISION}\" \
+                  --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
+                  --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
+                  --progress=plain \
+                  --cache-from ${IMAGE_FULLNAME}:${IMAGE_TAG} \
+                  -f ${DOCKERFILE} ."
+                )
+                myImage.push()
+                sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
+              }
+            }
+          }
+        }
+
+        stage('Build infra image (no cache)') {
+          when {
+            anyOf {
+              triggeredBy 'TimerTrigger'
+              triggeredBy cause: 'UserIdCause'
+            }
+          }
+          steps {
+            script {
+              docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
+                def myImage = docker.build(
+                  "${IMAGE_FULLNAME}:${IMAGE_TAG}",
+                  "--label \"org.opencontainers.image.created=${LABEL_CREATED}\" \
+                  --label \"org.opencontainers.image.authors=${LABEL_AUTHORS}\" \
+                  --label \"org.opencontainers.image.url=${LABEL_URL}\" \
+                  --label \"org.opencontainers.image.source=${GIT_URL}\" \
+                  --label \"org.opencontainers.image.version=${IMAGE_TAG}\" \
+                  --label \"org.opencontainers.image.revision=${REVISION}\" \
+                  --label \"org.opencontainers.image.title=${LABEL_TITLE}\" \
+                  --label \"org.opencontainers.image.description=${LABEL_DESCRIPTION}\" \
+                  --progress=plain \
+                  --pull \
+                  --no-cache \
+                  -f ${DOCKERFILE} ."
+                )
+                myImage.push()
                 sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
               }
             }

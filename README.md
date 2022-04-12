@@ -4,5 +4,8 @@
 
 ## Тэги
 
-    git.devmem.ru/cr/ansible:latest
-    ghcr.io/spirkaa/ansible:latest
+    git.devmem.ru/cr/ansible:base
+    git.devmem.ru/cr/ansible:k8s
+    git.devmem.ru/cr/ansible:infra
+
+    ghcr.io/spirkaa/ansible:base
