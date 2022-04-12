@@ -1,4 +1,4 @@
-def buildImageCache(String tag) {
+def buildImageCache(String tag, String altTag = null) {
   IMAGE_TAG = "${tag}"
   DOCKERFILE = ".docker/${IMAGE_TAG}.Dockerfile"
   docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
@@ -17,11 +17,14 @@ def buildImageCache(String tag) {
       -f ${DOCKERFILE} ."
     )
     myImage.push()
+    if(altTag) {
+      myImage.push(altTag)
+    }
     sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
   }
 }
 
-def buildImageNoCache(String tag) {
+def buildImageNoCache(String tag, String altTag = null) {
   IMAGE_TAG = "${tag}"
   DOCKERFILE = ".docker/${IMAGE_TAG}.Dockerfile"
   docker.withRegistry("${REGISTRY_URL}", "${REGISTRY_CREDS_ID}") {
@@ -41,6 +44,9 @@ def buildImageNoCache(String tag) {
       -f ${DOCKERFILE} ."
     )
     myImage.push()
+    if(altTag) {
+      myImage.push(altTag)
+    }
     sh "docker rmi -f \$(docker inspect -f '{{ .Id }}' ${myImage.id})"
   }
 }
@@ -95,7 +101,7 @@ pipeline {
           }
           steps {
             script {
-              buildImageCache 'base'
+              buildImageCache('base', 'latest')
             }
           }
         }
@@ -109,7 +115,7 @@ pipeline {
           }
           steps {
             script {
-              buildImageNoCache 'base'
+              buildImageNoCache('base', 'latest')
             }
           }
         }

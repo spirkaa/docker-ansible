@@ -4,7 +4,7 @@
 
 ## Тэги
 
-    git.devmem.ru/cr/ansible:base
+    git.devmem.ru/cr/ansible:base (latest)
     git.devmem.ru/cr/ansible:k8s
     git.devmem.ru/cr/ansible:infra
 
