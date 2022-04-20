@@ -2,11 +2,35 @@
 
 export DOCKER_BUILDKIT=1
 
-TAG=git.devmem.ru/cr/ansible
+IMAGE_FULLNAME=git.devmem.ru/cr/ansible
 
 default: build
 
 build:
-	@docker build --tag ${TAG}:base -f .docker/base.Dockerfile .
-	@docker build --tag ${TAG}:k8s -f .docker/k8s.Dockerfile .
-	@docker build --tag ${TAG}:infra -f .docker/infra.Dockerfile .
+	@docker build \
+		--cache-from ${IMAGE_FULLNAME}:base \
+		--tag ${IMAGE_FULLNAME}:base \
+		-f .docker/base.Dockerfile .
+	@docker build \
+		--cache-from ${IMAGE_FULLNAME}:k8s \
+		--tag ${IMAGE_FULLNAME}:k8s \
+		-f .docker/k8s.Dockerfile .
+	@docker build \
+		--cache-from ${IMAGE_FULLNAME}:infra \
+		--tag ${IMAGE_FULLNAME}:infra \
+		-f .docker/infra.Dockerfile .
+
+build-nocache:
+	@docker build \
+		--pull --no-cache \
+		--tag ${IMAGE_FULLNAME}:base \
+		-f .docker/base.Dockerfile .
+	@docker build \
+		--pull \
+		--no-cache \
+		--tag ${IMAGE_FULLNAME}:k8s \
+		-f .docker/k8s.Dockerfile .
+	@docker build \
+		--pull --no-cache \
+		--tag ${IMAGE_FULLNAME}:infra \
+		-f .docker/infra.Dockerfile .

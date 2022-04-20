@@ -1,4 +1,6 @@
-FROM alpine:3.15 AS build
+ARG BUILD_IMAGE=alpine:3.15
+
+FROM ${BUILD_IMAGE} AS builder
 
 RUN set -eux \
     && apk add --update --no-cache \
@@ -22,10 +24,12 @@ RUN set -eux \
     && kubectl version --client --short=true 2>&1 | grep -E "${KUBECTL_VERSION}"
 
 
-FROM git.devmem.ru/cr/ansible:base AS prod
+FROM git.devmem.ru/cr/ansible:base AS runner
 
-COPY --from=build /usr/bin/helm /usr/bin/helm
-COPY --from=build /usr/bin/kubectl /usr/bin/kubectl
+COPY --from=builder /usr/bin/helm /usr/bin/helm
+COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl
+
+ENV PATH="/opt/venv/bin:$PATH"
 
 RUN set -eux \
     && pip install --no-cache-dir kubernetes

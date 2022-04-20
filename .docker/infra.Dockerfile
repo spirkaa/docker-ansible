@@ -1,4 +1,6 @@
-FROM alpine:3.15 AS build
+ARG BUILD_IMAGE=alpine:3.15
+
+FROM ${BUILD_IMAGE} AS builder
 
 RUN set -eux \
     && apk add --update --no-cache \
@@ -22,9 +24,11 @@ RUN set -eux \
     && packer version | grep -E "${PACKER_VERSION}"
 
 
-FROM git.devmem.ru/cr/ansible:k8s AS prod
+FROM git.devmem.ru/cr/ansible:k8s AS runner
 
-COPY --from=build /usr/bin/terraform /usr/bin/terraform
-COPY --from=build /usr/bin/packer /usr/bin/packer
+COPY --from=builder /usr/bin/terraform /usr/bin/terraform
+COPY --from=builder /usr/bin/packer /usr/bin/packer
+
+ENV PATH="/opt/venv/bin:$PATH"
 
 CMD [ "/bin/bash" ]
