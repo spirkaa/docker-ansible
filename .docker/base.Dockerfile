@@ -25,6 +25,7 @@ COPY --from=builder /opt/venv /opt/venv
 
 COPY requirements.yml .
 
+ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN set -eux \

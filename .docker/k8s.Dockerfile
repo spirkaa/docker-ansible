@@ -29,6 +29,7 @@ FROM git.devmem.ru/cr/ansible:base AS runner
 COPY --from=builder /usr/bin/helm /usr/bin/helm
 COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl
 
+ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN set -eux \

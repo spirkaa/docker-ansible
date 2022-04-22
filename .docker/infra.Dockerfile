@@ -29,6 +29,7 @@ FROM git.devmem.ru/cr/ansible:k8s AS runner
 COPY --from=builder /usr/bin/terraform /usr/bin/terraform
 COPY --from=builder /usr/bin/packer /usr/bin/packer
 
+ENV PYTHONUNBUFFERED=1
 ENV PATH="/opt/venv/bin:$PATH"
 
 CMD [ "/bin/bash" ]
