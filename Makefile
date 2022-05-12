@@ -2,7 +2,7 @@
 
 export DOCKER_BUILDKIT=1
 
-IMAGE_FULLNAME=git.devmem.ru/cr/ansible
+IMAGE_FULLNAME=git.devmem.ru/projects/ansible
 
 default: build
 

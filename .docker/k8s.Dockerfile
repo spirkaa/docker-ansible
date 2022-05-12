@@ -1,4 +1,5 @@
 ARG BUILD_IMAGE=alpine:3.15
+ARG RUNNER_IMAGE=git.devmem.ru/projects/ansible:base
 
 FROM ${BUILD_IMAGE} AS builder
 
@@ -24,7 +25,7 @@ RUN set -eux \
     && kubectl version --client --short=true 2>&1 | grep -E "${KUBECTL_VERSION}"
 
 
-FROM git.devmem.ru/cr/ansible:base AS runner
+FROM ${RUNNER_IMAGE} AS runner
 
 COPY --from=builder /usr/bin/helm /usr/bin/helm
 COPY --from=builder /usr/bin/kubectl /usr/bin/kubectl

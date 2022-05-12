@@ -1,4 +1,5 @@
 ARG BUILD_IMAGE=alpine:3.15
+ARG RUNNER_IMAGE=git.devmem.ru/projects/ansible:k8s
 
 FROM ${BUILD_IMAGE} AS builder
 
@@ -24,7 +25,7 @@ RUN set -eux \
     && packer version | grep -E "${PACKER_VERSION}"
 
 
-FROM git.devmem.ru/cr/ansible:k8s AS runner
+FROM ${RUNNER_IMAGE} AS runner
 
 COPY --from=builder /usr/bin/terraform /usr/bin/terraform
 COPY --from=builder /usr/bin/packer /usr/bin/packer
