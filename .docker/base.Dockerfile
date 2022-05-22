@@ -17,6 +17,7 @@ RUN set -eux \
     && apt-get install -y --no-install-recommends \
         git \
         libldap-2.4-2 \
+        make \
         openssh-client \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/*
