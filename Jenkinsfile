@@ -31,10 +31,12 @@ pipeline {
       stages {
         stage('Build base image (cache)') {
           when {
+            branch 'main'
             not {
               anyOf {
                 triggeredBy 'TimerTrigger'
                 triggeredBy cause: 'UserIdCause'
+                changeRequest()
               }
             }
           }
@@ -52,6 +54,7 @@ pipeline {
 
         stage('Build base image (no cache)') {
           when {
+            branch 'main'
             anyOf {
               triggeredBy 'TimerTrigger'
               triggeredBy cause: 'UserIdCause'
@@ -74,10 +77,12 @@ pipeline {
       stages {
         stage('Build k8s image (cache)') {
           when {
+            branch 'main'
             not {
               anyOf {
                 triggeredBy 'TimerTrigger'
                 triggeredBy cause: 'UserIdCause'
+                changeRequest()
               }
             }
           }
@@ -94,6 +99,7 @@ pipeline {
 
         stage('Build k8s image (no cache)') {
           when {
+            branch 'main'
             anyOf {
               triggeredBy 'TimerTrigger'
               triggeredBy cause: 'UserIdCause'
@@ -115,10 +121,12 @@ pipeline {
       stages {
         stage('Build infra image (cache)') {
           when {
+            branch 'main'
             not {
               anyOf {
                 triggeredBy 'TimerTrigger'
                 triggeredBy cause: 'UserIdCause'
+                changeRequest()
               }
             }
           }
@@ -135,6 +143,7 @@ pipeline {
 
         stage('Build infra image (no cache)') {
           when {
+            branch 'main'
             anyOf {
               triggeredBy 'TimerTrigger'
               triggeredBy cause: 'UserIdCause'
