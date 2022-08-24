@@ -4,17 +4,17 @@
 
 ## Теги и состав образов
 
-### git.devmem.ru/projects/ansible:base (latest), ghcr.io/spirkaa/ansible:base
+### ghcr.io/spirkaa/ansible:base, git.devmem.ru/projects/ansible:base
 
 * ansible
 
-### git.devmem.ru/projects/ansible:k8s
+### ghcr.io/spirkaa/ansible:k8s, git.devmem.ru/projects/ansible:k8s
 
 * ansible
 * helm
 * kubectl
 
-### git.devmem.ru/projects/ansible:infra
+### ghcr.io/spirkaa/ansible:infra, git.devmem.ru/projects/ansible:infra
 
 * ansible
 * helm
