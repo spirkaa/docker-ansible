@@ -1,5 +1,5 @@
 # Ansible
-ansible-core==2.12.5
+ansible-core==2.12.8
 ansible-lint
 docker
 jmespath
