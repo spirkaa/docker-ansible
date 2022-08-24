@@ -27,136 +27,130 @@ pipeline {
   }
 
   stages {
-    stage('Build base image') {
-      stages {
-        stage('Build base image (cache)') {
-          when {
-            branch 'main'
-            not {
-              anyOf {
-                triggeredBy 'TimerTrigger'
-                triggeredBy cause: 'UserIdCause'
-                changeRequest()
-              }
-            }
-          }
-          steps {
-            script {
-              buildDockerImage(
-                dockerFile: '.docker/base.Dockerfile',
-                tag: 'base',
-                altTag: 'latest',
-                useCache: true
-              )
-            }
+    stage('Build base image (cache)') {
+      when {
+        branch 'main'
+        not {
+          anyOf {
+            triggeredBy 'TimerTrigger'
+            triggeredBy cause: 'UserIdCause'
+            changeRequest()
           }
         }
-
-        stage('Build base image (no cache)') {
-          when {
-            branch 'main'
-            anyOf {
-              triggeredBy 'TimerTrigger'
-              triggeredBy cause: 'UserIdCause'
-            }
-          }
-          steps {
-            script {
-              buildDockerImage(
-                dockerFile: '.docker/base.Dockerfile',
-                tag: 'base',
-                altTag: 'latest'
-              )
-            }
-          }
+      }
+      steps {
+        script {
+          buildDockerImage(
+            dockerFile: '.docker/base.Dockerfile',
+            tag: 'base',
+            altTag: 'latest',
+            buildArgs: ["BUILD_IMAGE=${REGISTRY}/${IMAGE_OWNER}/python:3.10-bullseye-venv-builder"],
+            useCache: true
+          )
         }
       }
     }
 
-    stage('Build k8s image') {
-      stages {
-        stage('Build k8s image (cache)') {
-          when {
-            branch 'main'
-            not {
-              anyOf {
-                triggeredBy 'TimerTrigger'
-                triggeredBy cause: 'UserIdCause'
-                changeRequest()
-              }
-            }
-          }
-          steps {
-            script {
-              buildDockerImage(
-                dockerFile: '.docker/k8s.Dockerfile',
-                tag: 'k8s',
-                useCache: true
-              )
-            }
-          }
+    stage('Build base image (no cache)') {
+      when {
+        branch 'main'
+        anyOf {
+          triggeredBy 'TimerTrigger'
+          triggeredBy cause: 'UserIdCause'
         }
-
-        stage('Build k8s image (no cache)') {
-          when {
-            branch 'main'
-            anyOf {
-              triggeredBy 'TimerTrigger'
-              triggeredBy cause: 'UserIdCause'
-            }
-          }
-          steps {
-            script {
-              buildDockerImage(
-                dockerFile: '.docker/k8s.Dockerfile',
-                tag: 'k8s'
-              )
-            }
-          }
+      }
+      steps {
+        script {
+          buildDockerImage(
+            dockerFile: '.docker/base.Dockerfile',
+            tag: 'base',
+            altTag: 'latest',
+            buildArgs: ["BUILD_IMAGE=${REGISTRY}/${IMAGE_OWNER}/python:3.10-bullseye-venv-builder"]
+          )
         }
       }
     }
 
-    stage('Build infra image') {
-      stages {
-        stage('Build infra image (cache)') {
-          when {
-            branch 'main'
-            not {
-              anyOf {
-                triggeredBy 'TimerTrigger'
-                triggeredBy cause: 'UserIdCause'
-                changeRequest()
-              }
-            }
-          }
-          steps {
-            script {
-              buildDockerImage(
-                dockerFile: '.docker/infra.Dockerfile',
-                tag: 'infra',
-                useCache: true
-              )
-            }
+    stage('Build k8s image (cache)') {
+      when {
+        branch 'main'
+        not {
+          anyOf {
+            triggeredBy 'TimerTrigger'
+            triggeredBy cause: 'UserIdCause'
+            changeRequest()
           }
         }
+      }
+      steps {
+        script {
+          buildDockerImage(
+            dockerFile: '.docker/k8s.Dockerfile',
+            tag: 'k8s',
+            buildArgs: ["RUNNER_IMAGE=${IMAGE_FULLNAME}:base"],
+            useCache: true
+          )
+        }
+      }
+    }
 
-        stage('Build infra image (no cache)') {
-          when {
-            branch 'main'
-            anyOf {
-              triggeredBy 'TimerTrigger'
-              triggeredBy cause: 'UserIdCause'
-            }
+    stage('Build k8s image (no cache)') {
+      when {
+        branch 'main'
+        anyOf {
+          triggeredBy 'TimerTrigger'
+          triggeredBy cause: 'UserIdCause'
+        }
+      }
+      steps {
+        script {
+          buildDockerImage(
+            dockerFile: '.docker/k8s.Dockerfile',
+            tag: 'k8s',
+            buildArgs: ["RUNNER_IMAGE=${IMAGE_FULLNAME}:base"]
+          )
+        }
+      }
+    }
+
+    stage('Build infra image (cache)') {
+      when {
+        branch 'main'
+        not {
+          anyOf {
+            triggeredBy 'TimerTrigger'
+            triggeredBy cause: 'UserIdCause'
+            changeRequest()
           }
-          steps {
-            script {
-              buildDockerImage(
-                dockerFile: '.docker/infra.Dockerfile',
-                tag: 'infra'
-              )
-            }
-          }
+        }
+      }
+      steps {
+        script {
+          buildDockerImage(
+            dockerFile: '.docker/infra.Dockerfile',
+            tag: 'infra',
+            buildArgs: ["RUNNER_IMAGE=${IMAGE_FULLNAME}:k8s"],
+            useCache: true
+          )
+        }
+      }
+    }
+
+    stage('Build infra image (no cache)') {
+      when {
+        branch 'main'
+        anyOf {
+          triggeredBy 'TimerTrigger'
+          triggeredBy cause: 'UserIdCause'
+        }
+      }
+      steps {
+        script {
+          buildDockerImage(
+            dockerFile: '.docker/infra.Dockerfile',
+            tag: 'infra',
+            buildArgs: ["RUNNER_IMAGE=${IMAGE_FULLNAME}:k8s"]
+          )
         }
       }
     }

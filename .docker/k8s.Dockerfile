@@ -1,5 +1,5 @@
-ARG BUILD_IMAGE=alpine:3.15
-ARG RUNNER_IMAGE=git.devmem.ru/projects/ansible:base
+ARG BUILD_IMAGE=alpine:3.16
+ARG RUNNER_IMAGE=ghcr.io/spirkaa/ansible:base
 
 FROM ${BUILD_IMAGE} AS builder
 
