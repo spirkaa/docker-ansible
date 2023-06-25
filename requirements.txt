@@ -1,9 +1,9 @@
 # Ansible
-ansible-core==2.12.8
+ansible-core==2.15.1
 ansible-lint
 docker
 jmespath
-mitogen
+git+https://github.com/mitogen-hq/mitogen@master#egg=mitogen
 paramiko
 python-ldap
 yamllint
