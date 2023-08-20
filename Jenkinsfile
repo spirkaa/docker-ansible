@@ -44,7 +44,7 @@ pipeline {
             dockerFile: '.docker/base.Dockerfile',
             tag: 'base',
             altTag: 'latest',
-            buildArgs: ["BUILD_IMAGE=${REGISTRY}/${IMAGE_OWNER}/python:3.11-bullseye-venv-builder"],
+            buildArgs: ["BUILD_IMAGE=${REGISTRY}/${IMAGE_OWNER}/python:3.11-bookworm-venv-builder"],
             useCache: true
           )
         }
@@ -65,7 +65,7 @@ pipeline {
             dockerFile: '.docker/base.Dockerfile',
             tag: 'base',
             altTag: 'latest',
-            buildArgs: ["BUILD_IMAGE=${REGISTRY}/${IMAGE_OWNER}/python:3.11-bullseye-venv-builder"]
+            buildArgs: ["BUILD_IMAGE=${REGISTRY}/${IMAGE_OWNER}/python:3.11-bookworm-venv-builder"]
           )
         }
       }

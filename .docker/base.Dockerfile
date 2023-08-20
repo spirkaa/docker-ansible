@@ -1,9 +1,9 @@
 # hadolint global ignore=DL3006,DL3008
 
-ARG PYTHON_IMAGE=python:3.11-slim-bullseye
-ARG BUILD_IMAGE=ghcr.io/spirkaa/python:3.11-bullseye-venv-builder
+ARG BUILD_IMAGE=ghcr.io/spirkaa/python:3.11-bookworm-venv-builder
+ARG RUNTIME_IMAGE=python:3.11-slim-bookworm
 
-FROM ${BUILD_IMAGE} AS builder
+FROM ${BUILD_IMAGE} AS build
 
 SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
 
@@ -12,7 +12,11 @@ COPY requirements.txt /
 RUN pip install --no-cache-dir -r requirements.txt
 
 
-FROM ${PYTHON_IMAGE} AS runner
+FROM ${RUNTIME_IMAGE} AS runtime
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PATH="/opt/venv/bin:$PATH"
 
 SHELL [ "/bin/bash", "-euxo", "pipefail", "-c" ]
 
@@ -20,18 +24,16 @@ RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y --no-install-recommends \
         git \
-        libldap-2.4-2 \
+        jq \
+        libldap-2.5-0 \
         make \
         openssh-client \
     && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
     && rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /opt/venv /opt/venv
+COPY --from=build /opt/venv /opt/venv
 
 COPY requirements.yml /
-
-ENV PYTHONUNBUFFERED=1
-ENV PATH="/opt/venv/bin:$PATH"
 
 RUN ansible-galaxy role install -r requirements.yml -p /usr/share/ansible/roles \
     && ansible-galaxy collection install --no-cache -r requirements.yml -p /usr/share/ansible/collections \

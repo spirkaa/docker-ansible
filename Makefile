@@ -2,35 +2,42 @@
 
 export DOCKER_BUILDKIT=1
 
-IMAGE_FULLNAME=git.devmem.ru/projects/ansible
+GITEA_TAG=git.devmem.ru/projects/ansible
+GHCR_TAG=ghcr.io/spirkaa/ansible
 
 default: build
 
 build:
 	@docker build \
-		--cache-from ${IMAGE_FULLNAME}:base \
-		--tag ${IMAGE_FULLNAME}:base \
+		--cache-from ${GITEA_TAG}:base \
+		--tag ${GITEA_TAG}:base \
+		--tag ${GHCR_TAG}:base \
 		-f .docker/base.Dockerfile .
 	@docker build \
-		--cache-from ${IMAGE_FULLNAME}:k8s \
-		--tag ${IMAGE_FULLNAME}:k8s \
+		--cache-from ${GITEA_TAG}:k8s \
+		--tag ${GITEA_TAG}:k8s \
+		--tag ${GHCR_TAG}:k8s \
 		-f .docker/k8s.Dockerfile .
 	@docker build \
-		--cache-from ${IMAGE_FULLNAME}:infra \
-		--tag ${IMAGE_FULLNAME}:infra \
+		--cache-from ${GITEA_TAG}:infra \
+		--tag ${GITEA_TAG}:infra \
+		--tag ${GHCR_TAG}:infra \
 		-f .docker/infra.Dockerfile .
 
 build-nocache:
 	@docker build \
 		--pull --no-cache \
-		--tag ${IMAGE_FULLNAME}:base \
+		--tag ${GITEA_TAG}:base \
+		--tag ${GHCR_TAG}:base \
 		-f .docker/base.Dockerfile .
 	@docker build \
 		--pull \
 		--no-cache \
-		--tag ${IMAGE_FULLNAME}:k8s \
+		--tag ${GITEA_TAG}:k8s \
+		--tag ${GHCR_TAG}:k8s \
 		-f .docker/k8s.Dockerfile .
 	@docker build \
 		--pull --no-cache \
-		--tag ${IMAGE_FULLNAME}:infra \
+		--tag ${GITEA_TAG}:infra \
+		--tag ${GHCR_TAG}:infra \
 		-f .docker/infra.Dockerfile .
