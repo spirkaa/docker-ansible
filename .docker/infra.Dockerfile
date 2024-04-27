@@ -15,13 +15,13 @@ RUN apk add --update --no-cache \
 
 RUN TERRAFORM_VERSION="$(${CURL} -o /dev/null -w %\{url_effective\} https://github.com/hashicorp/terraform/releases/latest | sed 's/^.*\/v//g' )" \
     && ${CURL} -O "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
-    && busybox unzip terraform_"${TERRAFORM_VERSION}"_linux_amd64.zip \
+    && busybox unzip -n terraform_"${TERRAFORM_VERSION}"_linux_amd64.zip \
     && chmod +x terraform \
     && ./terraform version | grep -E "${TERRAFORM_VERSION}"
 
 RUN PACKER_VERSION="$(${CURL} -o /dev/null -w %\{url_effective\} https://github.com/hashicorp/packer/releases/latest | sed 's/^.*\/v//g' )" \
     && ${CURL} -O "https://releases.hashicorp.com/packer/${PACKER_VERSION}/packer_${PACKER_VERSION}_linux_amd64.zip" \
-    && busybox unzip packer_"${PACKER_VERSION}"_linux_amd64.zip \
+    && busybox unzip -n packer_"${PACKER_VERSION}"_linux_amd64.zip \
     && chmod +x packer \
     && ./packer version | grep -E "${PACKER_VERSION}"
 
