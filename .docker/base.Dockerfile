@@ -1,7 +1,7 @@
 # hadolint global ignore=DL3006,DL3008
 
-ARG BUILD_IMAGE=ghcr.io/spirkaa/python:3.11-bookworm-venv-builder
-ARG RUNTIME_IMAGE=python:3.11-slim-bookworm
+ARG BUILD_IMAGE=ghcr.io/spirkaa/python:3.13-bookworm-venv-builder
+ARG RUNTIME_IMAGE=python:3.13-slim-bookworm
 
 FROM ${BUILD_IMAGE} AS build
 

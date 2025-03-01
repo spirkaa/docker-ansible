@@ -1,6 +1,6 @@
 # hadolint global ignore=DL3006,DL3013,DL3018
 
-ARG BUILD_IMAGE=alpine:3.18
+ARG BUILD_IMAGE=alpine:3.21
 ARG RUNTIME_IMAGE=ghcr.io/spirkaa/ansible:base
 
 FROM ${BUILD_IMAGE} AS build
